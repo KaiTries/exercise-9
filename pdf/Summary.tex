@@ -1,0 +1,53 @@
+\documentclass[11pt]{article}
+
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\usepackage{times} % Times New Roman font
+\usepackage{hyperref} % For hyperlinks
+\usepackage{graphicx} % For including images
+\usepackage{listings}
+\usepackage{textcomp}
+
+\usepackage{xcolor} % Required for setting custom colors
+
+\lstset{
+  backgroundcolor=\color{lightgray}, % Set the background color
+  frame=single, % Adds a frame around the code
+  numbers=left, % Line numbers on the left
+  numberstyle=\tiny, % Line numbers styling
+  basicstyle=\ttfamily\small, % Set the font style
+  keywordstyle=\color{blue}, % Set the color for keywords
+  commentstyle=\color{green}, % Set the color for comments
+  stringstyle=\color{red}, % Set the color for strings
+  breaklines=true, % Wrap long lines
+  showstringspaces=false, % Don't show spaces in strings as special character
+}
+
+
+\title{Exercise 9}
+\author{Kai Schultz}
+\date{May 13. 2024} % Or specify a date
+
+\begin{document}
+
+\maketitle
+I forked the github repo so all the code can be found on here: \href{https://github.com/KaiTries/exercise-9}{Github}.
+
+\section*{Task 1: Interaction Trust - Return to the Mean!}
+The behaviour is still very similar as to the base behaviour. The only difference is, that the temperature chosen is already predetermined, since we already know our Interaction Trust for each agent. 
+
+\section*{Task 2: Collusion - Will the Rogue Agents Win?}
+Even if the rogues all collude together it does not make a difference. Since at this point the sensing agent decides based on the Interaction Trust of each agent. And the newly reported temperatures do not change that selection behaviour.
+
+\section*{Task 3: Certified Reputation - References to the Rescue!}
+Also with this change the loyal agents are still winning. Since the Certificates reflect the actual nature of the agents, this addition just strengthens the position of the good agents.
+
+\section*{Task 4: Next-Level Collusion through Witness Reputation}
+Depending on the ratings given by the agents, both outcomes are possible. Since we can assume that the rogue agent will always rate another rogue with 1 and loyal agents with -1, depending on how much the loyal agents trust eachother and distrust the rogue agents, the outcome may change. The Tipping point can be calculated. Simply find the Rogue with the highest IT\_AVG and CRRATING as well as the royal who has had the highest overall rating. Then calculate the difference, and we know how much WR\_AVG we need to get to the tipping point.
+
+\section*{Task 5: A Way Out?}
+Since in my implementation the royals are winning, the rogues need a plan to win. In the prior task I already outlined, that to change the outcome we need to change the Witness Reputation that the loyals give. This could be done by either convincing royals that other royals are rogues (to weaken their position) or by convincing royals that they are not rogues (to strengthen our position) or both could be done. 
+
+Sidenote: The acting agent does not check if the Witness Reputation is indeed between -1 and 1, so technically the rogues could report much higher ratings.
+\end{document}
