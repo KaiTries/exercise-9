@@ -1,7 +1,8 @@
 // acting agent
 
 /* Initial beliefs and rules */
-
+highest_rating(0).
+chosen_Reading("None").
 // The agent has a belief about the location of the W3C Web of Thing (WoT) Thing Description (TD)
 // that describes a Thing of type https://ci.mines-stetienne.fr/kg/ontology#PhantomX
 robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/tds/leubot1.ttl").
@@ -85,35 +86,25 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 	// first find all agents
 	.findall([Agent, Temp],temperature(Temp)[source(Agent)], AgentsReadings);
 
-	// beliefs needed to do logic
-	+highest_rating(0);
-	+chosen_Reading(0);
-
-
 	for (.member([A, R], AgentsReadings)) {
 		//  TASK 1 -> Get ITReadings
-		.findall(Rating, interaction_trust(_,A,_, Rating), Ratings);
-
+		.findall(ITRating, interaction_trust(_,A,_, ITRating), ITRatings);
 		// TASK 3 -> Get reputation cert
-		// if we add the optional output param to the ask then the response gets bound to the param
-		// instead of being added to the belief base. Therefore the logging will not happen.
-		// simply remove the X parameter and uncomment the wait command if you want logging.
-		.send(A, askOne, certified_reputation(_,_,_,CRRATING),X);
-		//.wait(1000);
+		.send(A, askOne, certified_reputation(_,_,_,_));
+		.wait(1000);
 
 		// TASK 4 ->  Get Witness reputation ratings
-		.findall(WRating, witness_reputation(_,A,_, WRRating), WRatings);
-
-		// update beliefs if we found a new highest IT AVG + CRRATING
-		if (highest_rating(Rating) & Rating < math.mean([math.mean(Ratings), CRRATING, math.mean(WRatings)])) {
-			-+highest_rating(math.mean([math.mean(Ratings), CRRATING, math.mean(WRatings)]));
+		.findall(WRating, witness_reputation(_,A,_, WRating), WRatings);
+		// update beliefs if we found a new highest IT AVG + CRRATING + WRATING
+		if (certified_reputation(_,A,_,CRRATING) & highest_rating(Rating) & Rating < math.mean([math.mean(ITRatings), CRRATING, math.mean(WRatings)])) {
+			-+highest_rating(math.mean([math.mean(ITRatings), CRRATING, math.mean(WRatings)]));
 			-+chosen_Reading(R);
 		};
 	};
+
 	// set the chosen temp as output param
 	.findall(C, chosen_Reading(C), Temps);
 	.nth(0,Temps, SelectedTemp).
-
 
 /* 
  * Plan for reacting to the addition of the goal !manifest_temperature

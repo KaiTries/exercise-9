@@ -46,9 +46,9 @@ i_have_plans_for(R) :- not (role_goal(R,G) & not has_plan_for(G)).
 	// gotta turn the "number" back to a number
 	.term2string(N, Number);
 	if (N < 5) {
-		.send(acting_agent, tell, witness_reputation(Name, Agent, temperature(Celsius), 1));
-	} else {
 		.send(acting_agent, tell, witness_reputation(Name, Agent, temperature(Celsius), -1));
+	} else {
+		.send(acting_agent, tell, witness_reputation(Name, Agent, temperature(Celsius), 1));
 	}.
 
 /* 
