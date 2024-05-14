@@ -81,8 +81,31 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
  * Body: unifies the variable Celcius with the 1st temperature reading from the list TempReadings
 */
 @select_reading_task_0_plan
-+!select_reading(TempReadings, Celcius) : true <-
-    .nth(0, TempReadings, Celcius).
++!select_reading(SelectedTemp) : true <-
+	// first find all agents
+	.findall([Agent, Temp],temperature(Temp)[source(Agent)], AgentsReadings);
+
+	// beliefs needed to do logic
+	+highest_rating(0);
+	+chosen_Reading(0);
+
+
+	// Implementation for TASK 1 -> Select Reading based on highest IT AVG
+	for (.member([A, R], AgentsReadings)) {
+		// TASK 3 -> Get reputation cert
+		.send(A, askOne, certified_reputation(_,_,_,CRRATING),X,1000);
+		// get the avg rating of each agent
+		.findall(Rating, interaction_trust(SourceAgent, A, MessageContent, Rating), Ratings);
+		// update beliefs if we found a new highest IT AVG + CRRATING
+		if (highest_rating(Rating) & Rating < math.mean([math.mean(Ratings), CRRATING])) {
+			-+highest_rating(math.mean([math.mean(Ratings), CRRATING]));
+			-+chosen_Reading(R);
+		};
+	};
+	// set the chosen temp as output param
+	.findall(C, chosen_Reading(C), Temps);
+	.nth(0,Temps, SelectedTemp).
+
 
 /* 
  * Plan for reacting to the addition of the goal !manifest_temperature
@@ -94,9 +117,10 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 */
 @manifest_temperature_plan 
 +!manifest_temperature : temperature(Celcius) & robot_td(Location) <-
-	.print("I will manifest the temperature: ", Celcius);
+	!select_reading(SelectedTemp);
+	.print("I will manifest the temperature: ", SelectedTemp);
 	makeArtifact("covnerter", "tools.Converter", [], ConverterId); // creates a converter artifact
-	convert(Celcius, -20.00, 20.00, 200.00, 830.00, Degrees)[artifact_id(ConverterId)]; // converts Celcius to binary degress based on the input scale
+	convert(SelectedTemp, -20.00, 20.00, 200.00, 830.00, Degrees)[artifact_id(ConverterId)]; // converts Celcius to binary degress based on the input scale
 	.print("Temperature Manifesting (moving robotic arm to): ", Degrees);
 
 	/* 
