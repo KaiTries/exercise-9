@@ -16,6 +16,19 @@
   .remove_plan(LL);
   .relevant_plans({ -!read_temperature }, _, LL2);
   .remove_plan(LL2);
+  .relevant_plans({ +temperature(Celsius) }, _, LL3); 
+  .remove_plan(LL3);
+
+  .add_plan({ +temperature(Celsius)[source(Agent)] : .my_name(Name) & Name \== Agent <-
+	.term2string(Agent,AgentString);
+	.length(AgentString, StringLength);
+	.nth(StringLength - 1, AgentString, Number);
+	.term2string(N, Number);
+	if (N < 5) {
+		.send(acting_agent, tell, witness_reputation(Name, Agent, temperature(Celsius), -1));
+	} else {
+		.send(acting_agent, tell, witness_reputation(Name, Agent, temperature(Celsius), 1));
+	}});
 
   // adds a new plan for always broadcasting the temperature -2
   .add_plan({ +!read_temperature : true

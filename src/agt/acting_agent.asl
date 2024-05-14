@@ -90,15 +90,23 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 	+chosen_Reading(0);
 
 
-	// Implementation for TASK 1 -> Select Reading based on highest IT AVG
 	for (.member([A, R], AgentsReadings)) {
+		//  TASK 1 -> Get ITReadings
+		.findall(Rating, interaction_trust(_,A,_, Rating), Ratings);
+
 		// TASK 3 -> Get reputation cert
-		.send(A, askOne, certified_reputation(_,_,_,CRRATING),X,1000);
-		// get the avg rating of each agent
-		.findall(Rating, interaction_trust(SourceAgent, A, MessageContent, Rating), Ratings);
+		// if we add the optional output param to the ask then the response gets bound to the param
+		// instead of being added to the belief base. Therefore the logging will not happen.
+		// simply remove the X parameter and uncomment the wait command if you want logging.
+		.send(A, askOne, certified_reputation(_,_,_,CRRATING),X);
+		//.wait(1000);
+
+		// TASK 4 ->  Get Witness reputation ratings
+		.findall(WRating, witness_reputation(_,A,_, WRRating), WRatings);
+
 		// update beliefs if we found a new highest IT AVG + CRRATING
-		if (highest_rating(Rating) & Rating < math.mean([math.mean(Ratings), CRRATING])) {
-			-+highest_rating(math.mean([math.mean(Ratings), CRRATING]));
+		if (highest_rating(Rating) & Rating < math.mean([math.mean(Ratings), CRRATING, math.mean(WRatings)])) {
+			-+highest_rating(math.mean([math.mean(Ratings), CRRATING, math.mean(WRatings)]));
 			-+chosen_Reading(R);
 		};
 	};
